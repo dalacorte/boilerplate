@@ -1,0 +1,254 @@
+{
+	"info": {
+		"_postman_id": "09bc684a-5499-4b19-86d3-b6ebf213812d",
+		"name": "ADServer",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14805616"
+	},
+	"item": [
+		{
+			"name": "registration",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\r\n    \"username\": \"dalacorteeeeeeasdeee\",\r\n    \"password\": \"123abc123@123ABC\",\r\n    \"email\": \"dalacort123e@email.com.br\",\r\n    \"name\": \"string\",\r\n    \"profilePicture\": \"string\",\r\n    \"role\": \"string\",\r\n    \"accessToken\": \"string\",\r\n    \"refreshToken\": \"string\",\r\n    \"isActive\": true,\r\n    \"language\": \"string\",\r\n    \"createdDate\": \"2023-05-10T23:07:49.544Z\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/auth/registration",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"registration"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"password\": \"123abc123@123ABC\",\r\n    \"email\": \"dalacort123e@email.com.br\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6IjNmYTg1ZjY0LTU3MTctNDU2Mi1iM2ZjLTJjOTYzZjY2YWZhNiIsIlVzZXJuYW1lIjoiZGFsYWNvcnRlZWVlZWVhc2RlZWUiLCJlbWFpbCI6ImRhbGFjb3J0MTIzZUBlbWFpbC5jb20uYnIiLCJyb2xlIjoic3RyaW5nIiwibmJmIjoxNjgzODY2NjY0LCJleHAiOjE2ODQxMjU4NjQsImlhdCI6MTY4Mzg2NjY2NCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDAifQ.p3wFcAC8MGDRAECRoG1Z40PsUEgvVsW-v0mzi1RF6M0\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/auth/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"refreshToken\": \"6d67d288-4a54-44bb-92be-6668e30a4aea\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/auth/refresh",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6IjNmYTg1ZjY0LTU3MTctNDU2Mi1iM2ZjLTJjOTYzZjY2YWZhNiIsIlVzZXJuYW1lIjoiZGFsYWNvcnRlZWVlZWVhc2RlZWUiLCJlbWFpbCI6ImRhbGFjb3J0MTIzZUBlbWFpbC5jb20uYnIiLCJyb2xlIjoic3RyaW5nIiwibmJmIjoxNjgzODY2ODMyLCJleHAiOjE2ODQxMjYwMzIsImlhdCI6MTY4Mzg2NjgzMiwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDAifQ.vCB7WuKwhEHaKSDk8lfp6cn4NOf7nxSoGdLWEgVsiVI",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6IjNmYTg1ZjY0LTU3MTctNDU2Mi1iM2ZjLTJjOTYzZjY2YWZhNiIsIlVzZXJuYW1lIjoiZGFsYWNvcnRlZWVlZWVhc2RlZWUiLCJlbWFpbCI6ImRhbGFjb3J0MTIzZUBlbWFpbC5jb20uYnIiLCJyb2xlIjoic3RyaW5nIiwibmJmIjoxNjgzODY2ODMyLCJleHAiOjE2ODQxMjYwMzIsImlhdCI6MTY4Mzg2NjgzMiwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDAifQ.vCB7WuKwhEHaKSDk8lfp6cn4NOf7nxSoGdLWEgVsiVI",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/user/3fa85f64-5717-4562-b3fc-2c963f66afa6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"3fa85f64-5717-4562-b3fc-2c963f66afa6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "put",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6IjNmYTg1ZjY0LTU3MTctNDU2Mi1iM2ZjLTJjOTYzZjY2YWZhNiIsIlVzZXJuYW1lIjoiZGFsYWNvcnRlZWVlZWVhc2RlZWUiLCJlbWFpbCI6ImRhbGFjb3J0MTIzZUBlbWFpbC5jb20uYnIiLCJyb2xlIjoic3RyaW5nIiwibmJmIjoxNjgzODY2ODMyLCJleHAiOjE2ODQxMjYwMzIsImlhdCI6MTY4Mzg2NjgzMiwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDAifQ.vCB7WuKwhEHaKSDk8lfp6cn4NOf7nxSoGdLWEgVsiVI",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"dalacorteeeeeeasdeee\",\r\n    \"password\": \"123abc123@123ABC\",\r\n    \"email\": \"dalacort123e@email.com.br\",\r\n    \"name\": \"string\",\r\n    \"profilePicture\": \"string\",\r\n    \"role\": \"admin\",\r\n    \"language\": \"pt-BR\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/user/3fa85f64-5717-4562-b3fc-2c963f66afa6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"3fa85f64-5717-4562-b3fc-2c963f66afa6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete id",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6IjNmYTg1ZjY0LTU3MTctNDU2Mi1iM2ZjLTJjOTYzZjY2YWZhNiIsIlVzZXJuYW1lIjoiZGFsYWNvcnRlZWVlZWVhc2RlZWUiLCJlbWFpbCI6ImRhbGFjb3J0MTIzZUBlbWFpbC5jb20uYnIiLCJyb2xlIjoic3RyaW5nIiwibmJmIjoxNjgzODY2ODMyLCJleHAiOjE2ODQxMjYwMzIsImlhdCI6MTY4Mzg2NjgzMiwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTAwMCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDAifQ.vCB7WuKwhEHaKSDk8lfp6cn4NOf7nxSoGdLWEgVsiVI",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/user/3fa85f64-5717-4562-b3fc-2c963f66afa6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"3fa85f64-5717-4562-b3fc-2c963f66afa6"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

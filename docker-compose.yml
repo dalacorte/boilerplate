@@ -1,0 +1,76 @@
+version: '3'
+
+services:
+  mongodb-primary:
+    container_name: mongodb-primary
+    image: 'bitnami/mongodb:latest'
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_PASSWORD=admin123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+
+  mongodb-secondary:
+    container_name: mongodb-secondary
+    image: 'bitnami/mongodb:latest'
+    restart: always
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=admin123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+
+  mongodb-arbiter:
+    container_name: mongodb-arbiter
+    image: 'bitnami/mongodb:latest'
+    restart: always
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
+      - MONGODB_REPLICA_SET_MODE=arbiter
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=admin123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      ALLOW_EMPTY_PASSWORD: yes
+    networks:
+      - redis-network
+
+  minio:
+    container_name: minio
+    image: minio/minio
+    restart: always
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - minio_storage:/data
+    environment:
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: admin123
+    command: server --console-address ":9001" /data
+
+networks:
+  redis-network:
+    driver: bridge
+  mongo-network:
+    driver: bridge
+
+volumes:
+  minio_storage: {}

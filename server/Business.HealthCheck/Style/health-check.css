@@ -1,0 +1,14 @@
+﻿:root {
+    --bgMain: #262626; /* background color */
+    --fcBase: #fff; /* font color */
+    --bgMenuActive: #2f2f2f; /* background color of active menu item */
+    --bcMenuActive: #fffb00; /* border color of active menu item */
+    --primaryColor: #0a7ad3; /* primary color */
+    --secondaryColor: #9343d1; /* secondary color */
+    --bgMenuActive: #7a0bcf6e; /* background color of menu item when active */
+    --bgButton: #63199b; /* background color of button */
+    --logoImageUrl: url('https://i.ibb.co/BqMG9sx/windows.gif'); /* logo image url */
+    --bgAside: #1f1f1f; /* background color of aside */
+    --bgTable: #2f2f2f; /* background color of table */
+    --bgTableSecondary: #63199b; /* secondary background color of table */
+}
