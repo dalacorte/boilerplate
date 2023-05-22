@@ -58,10 +58,10 @@ namespace Business.Application.Application
 
         public async Task<User> PutUser(Guid id, User u)
         {
-            await _userService.PutUser(id, u);
+            var user = await _userService.PutUser(id, u);
             await _unitOfWork.Commit();
 
-            return u;
+            return user;
         }
 
         public async Task DeleteUser(Guid id)

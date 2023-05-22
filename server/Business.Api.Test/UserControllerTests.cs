@@ -3,6 +3,7 @@ using Business.Domain.Fakers;
 using Business.Domain.Interfaces.Application;
 using Business.Domain.Model;
 using Business.Domain.Model.DTO;
+using Business.Domain.ViewModels;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -47,14 +48,22 @@ namespace Business.Api.Test
             User user1 = _userFaker.Generate();
             User user2 = _userFaker.Generate();
             List<User> users = new List<User> { user1, user2 };
+
+            IEnumerable<UserViewModel> expectedViewModels = new List<UserViewModel>
+            {
+                new UserViewModel(user1.Id, user1.Username, user1.Password, user1.Email, user1.Name, user1.ProfilePicture, user1.Language),
+                new UserViewModel(user2.Id, user2.Username, user2.Password, user2.Email, user2.Name, user2.ProfilePicture, user2.Language)
+            };
+
             _userApplicationMock.Setup(a => a.GetAll()).ReturnsAsync(users);
+            _mapperMock.Setup(m => m.Map<IEnumerable<UserViewModel>>(users)).Returns(expectedViewModels);
 
             // Act
             IActionResult result = await _controller.Get();
 
             // Assert
             OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
-            IEnumerable<User> returnedUsers = Assert.IsAssignableFrom<IEnumerable<User>>(okResult.Value);
+            IEnumerable<UserViewModel> returnedUsers = Assert.IsAssignableFrom<IEnumerable<UserViewModel>>(okResult.Value);
             Assert.True(returnedUsers.Count() > 0);
         }
 

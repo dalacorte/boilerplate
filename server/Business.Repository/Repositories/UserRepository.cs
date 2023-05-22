@@ -42,8 +42,11 @@ namespace Business.Repository.Repositories
             {
                 user.UpdateUsername(u.Username);
                 user.UpdatePassword(u.Password);
-                user.UpdateAccessToken(u.AccessToken);
-                user.UpdateRefreshToken(u.RefreshToken);
+                user.UpdateEmail(u.Email);
+                user.UpdateName(u.Name);
+                user.UpdateProfilePicture(u.ProfilePicture);
+                user.UpdateRole(u.Role);
+                user.UpdateLanguage(u.Language);
 
                 Update(user);
 

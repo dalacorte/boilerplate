@@ -46,7 +46,6 @@ namespace Business.Api.Benchmark
             );
 
             _userId = Guid.NewGuid();
-            // Set up behavior for GetById()
             _userApplicationMock.Setup(a => a.GetById(_userId)).ReturnsAsync(GetMockUser());
         }
 

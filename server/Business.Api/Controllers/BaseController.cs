@@ -8,7 +8,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Business.Api.Controllers
 {
-    //[ApiExplorerSettings(IgnoreApi = true)]
     public class BaseController<TEntity, TContext, TViewModel, TController> : Controller
         where TEntity : class
         where TContext : IUnitOfWork

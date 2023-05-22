@@ -24,6 +24,9 @@ namespace Api.Controllers
     {
         private readonly IUserApplication<User, UnitOfWork> _userApplication;
 
+        ///<Summary>
+        /// Constructor
+        ///</Summary>
         public UserController(IMapper mapper,
                               IValidator<User> validator,
                               IUserApplication<User, UnitOfWork> userApplication,
@@ -40,13 +43,14 @@ namespace Api.Controllers
         /// <response code="200">Users retrieved successfully.</response>
         /// <response code="401">Unauthorized access.</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<User>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<UserViewModel>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get()
         {
             IEnumerable<User> users = await _application.GetAll();
+            IEnumerable<UserViewModel> usersViewModel = _mapper.Map<IEnumerable<UserViewModel>>(users);
 
-            return Ok(users);
+            return Ok(usersViewModel);
         }
 
         /// <summary>
@@ -58,14 +62,15 @@ namespace Api.Controllers
         /// <response code="401">Unauthorized access.</response>
         /// <response code="404">User not found.</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(User))]
+        [ProducesResponseType(200, Type = typeof(UserViewModel))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             User user = await _application.GetById(id);
+            UserViewModel userViewModel = _mapper.Map<UserViewModel>(user);
 
-            return user is null ? NotFound() : Ok(user);
+            return userViewModel is null ? NotFound() : Ok(userViewModel);
         }
 
         /// <summary>
@@ -85,7 +90,6 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UserDTO dto)
         {
-            // QUEBRADO PRECISA ARRUMAR
             User user = _mapper.Map<User>(dto);
             ValidationResult result = await _validator.ValidateAsync(user);
 
