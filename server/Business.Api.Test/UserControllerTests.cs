@@ -48,13 +48,11 @@ namespace Business.Api.Test
             User user1 = _userFaker.Generate();
             User user2 = _userFaker.Generate();
             List<User> users = new List<User> { user1, user2 };
-
             IEnumerable<UserViewModel> expectedViewModels = new List<UserViewModel>
             {
                 new UserViewModel(user1.Id, user1.Username, user1.Password, user1.Email, user1.Name, user1.ProfilePicture, user1.Language),
                 new UserViewModel(user2.Id, user2.Username, user2.Password, user2.Email, user2.Name, user2.ProfilePicture, user2.Language)
             };
-
             _userApplicationMock.Setup(a => a.GetAll()).ReturnsAsync(users);
             _mapperMock.Setup(m => m.Map<IEnumerable<UserViewModel>>(users)).Returns(expectedViewModels);
 
@@ -73,16 +71,17 @@ namespace Business.Api.Test
             // Arrange
             User user = _userFaker.Generate();
             _userApplicationMock.Setup(a => a.GetById(user.Id)).ReturnsAsync(user);
+            UserViewModel expectedViewModels = new UserViewModel(user.Id, user.Username, user.Password, user.Email, user.Name, user.ProfilePicture, user.Language);
+            _mapperMock.Setup(m => m.Map<UserViewModel>(user)).Returns(expectedViewModels);
 
             // Act
             IActionResult result = await _controller.GetById(user.Id);
 
             // Assert
             OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
-            User returnedUser = Assert.IsType<User>(okResult.Value);
+            UserViewModel returnedUser = Assert.IsType<UserViewModel>(okResult.Value);
             Assert.Equal(user.Id, returnedUser.Id);
         }
-
         [Fact]
         public async Task GetById_NonexistentId_ReturnsNotFound()
         {
@@ -103,10 +102,22 @@ namespace Business.Api.Test
             // Arrange
             Guid userId = Guid.NewGuid();
             UserDTO dto = _userFaker.GenerateDTO();
-            User user = new User();
             CancellationToken cancellation = new CancellationToken();
+            User user = new User();
+            user.UpdateId();
+            user.UpdateName(dto.Name);
+            user.UpdatePassword(dto.Password);
+            user.UpdateEmail(dto.Email);
+            user.UpdateName(dto.Name);
+            user.UpdateProfilePicture(dto.ProfilePicture);
+            user.UpdateRole(dto.Role);
+            user.UpdateAccessToken(dto.AccessToken);
+            user.UpdateRefreshToken(dto.RefreshToken);
+            user.UpdateIsActive(dto.IsActive.Value);
+            user.UpdateLanguage(dto.Language);
+            user.UpdateCreatedDate();
             _mapperMock.Setup(m => m.Map<User>(dto)).Returns(user);
-            IValidator<User> valid = (IValidator<User>)_validatorMock.Setup(v => v.ValidateAsync(user, cancellation)).ReturnsAsync(new ValidationResult());
+            var valid = _validatorMock.Setup(v => v.ValidateAsync(user, cancellation)).ReturnsAsync(new ValidationResult());
             _userApplicationMock.Setup(a => a.PutUser(userId, user)).ReturnsAsync(user);
 
             // Act
@@ -114,8 +125,10 @@ namespace Business.Api.Test
 
             // Assert
             OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
-            User returnedUser = Assert.IsType<User>(okResult.Value);
-            Assert.Equal(user.Id, returnedUser.Id);
+            dynamic value = okResult.Value;
+            dynamic propertyInfo = value.GetType().GetProperty("id");
+            Guid returnedId = propertyInfo.GetValue(value, null);
+            Assert.Equal(user.Id, returnedId);
         }
 
         [Fact]
@@ -144,7 +157,6 @@ namespace Business.Api.Test
             Guid nonExistentId = Guid.NewGuid();
             UserDTO dto = _userFaker.GenerateDTO();
             CancellationToken cancellation = new CancellationToken();
-
             _mapperMock.Setup(m => m.Map<User>(dto)).Returns(new User());
             _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<User>(), cancellation)).ReturnsAsync(new ValidationResult());
             _userApplicationMock.Setup(a => a.PutUser(nonExistentId, It.IsAny<User>())).ThrowsAsync(new Exception());
