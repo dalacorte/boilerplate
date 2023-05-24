@@ -2,7 +2,6 @@
 using Business.Domain.Interfaces.Application;
 using Business.Domain.Interfaces.Services;
 using Business.Domain.Model;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -13,16 +12,13 @@ namespace Business.Service.Services
     public class TokenService : ITokenService
     {
         private readonly IUserApplication<User, UnitOfWork> _userApplication;
-        private readonly IdentityConfig _identity;
 
-        public TokenService(IUserApplication<User, UnitOfWork> userApplication,
-                            IOptions<IdentityConfig> identity)
+        public TokenService(IUserApplication<User, UnitOfWork> userApplication)
         {
             _userApplication = userApplication;
-            _identity = identity.Value;
         }
 
-        public async Task<User> GenerateJWT(User u)
+        public async Task<User> GenerateJWT(User u, IdentityConfig c)
         {
             User user = await _userApplication.GetUserById(u.Id);
             ClaimsIdentity claimsIdentity = new ClaimsIdentity();
@@ -33,13 +29,13 @@ namespace Business.Service.Services
             claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, u.Role));
 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            byte[] key = Encoding.ASCII.GetBytes(_identity.Secret);
+            byte[] key = Encoding.ASCII.GetBytes(c.Secret);
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = claimsIdentity,
-                Issuer = _identity.ValidIssuer,
-                Audience = _identity.ValidAudience,
-                Expires = DateTime.UtcNow.AddHours(_identity.Expires),
+                Issuer = c.ValidIssuer,
+                Audience = c.ValidAudience,
+                Expires = DateTime.UtcNow.AddHours(c.Expires),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 

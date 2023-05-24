@@ -13,7 +13,7 @@ namespace Business.Application.Application
             _tokenService = tokenService;
         }
 
-        public async Task<User> GenerateJWT(User u)
-            => await _tokenService.GenerateJWT(u);
+        public async Task<User> GenerateJWT(User u, IdentityConfig c)
+            => await _tokenService.GenerateJWT(u, c);
     }
 }

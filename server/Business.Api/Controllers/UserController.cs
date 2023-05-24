@@ -99,12 +99,6 @@ namespace Api.Controllers
             {
                 User u = await _userApplication.PutUser(id, user);
 
-                _cache.GetOrCreate(u.Id, item =>
-                {
-                    item.Value = u.Username;
-                    return item;
-                });
-
                 return Ok(new { id = u.Id });
             }
             catch (Exception ex)

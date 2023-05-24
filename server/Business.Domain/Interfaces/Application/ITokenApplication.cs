@@ -9,6 +9,6 @@ namespace Business.Domain.Interfaces.Application
 {
     public interface ITokenApplication
     {
-        Task<User> GenerateJWT(User u);
+        Task<User> GenerateJWT(User u, IdentityConfig c);
     }
 }

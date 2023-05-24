@@ -1,41 +1,59 @@
 ﻿using AutoMapper;
+using Business.Api.Controllers;
 using Business.Application.UOW;
 using Business.Domain.Interfaces.Application;
 using Business.Domain.Model;
 using Business.Domain.Model.DTO;
+using Business.Domain.ViewModels;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace Api.Controllers
 {
+    ///<Summary>
+    /// Auth Controller :)
+    ///</Summary>
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/auth")]
-    public class AuthController : ControllerBase
+    public class AuthController : BaseController<User, UnitOfWork, UserViewModel, AuthController>
     {
-        private readonly IMapper _mapper;
-        private readonly IValidator<User> _validator;
         private readonly IUserApplication<User, UnitOfWork> _userApplication;
         private readonly ITokenApplication _tokenApplication;
-        private readonly IMemoryCache _cache;
+        private readonly IdentityConfig _identity;
 
+        ///<Summary>
+        /// Constructor
+        ///</Summary>
         public AuthController(IMapper mapper,
                               IValidator<User> validator,
                               IUserApplication<User, UnitOfWork> userApplication,
                               ITokenApplication tokenApplication,
-                              IMemoryCache cache)
+                              IOptions<IdentityConfig> identity,
+                              IMemoryCache cache,
+                              ILogger<AuthController> logger) : base(mapper, validator, userApplication, cache, logger)
         {
-            _mapper = mapper;
-            _validator = validator;
             _userApplication = userApplication;
             _tokenApplication = tokenApplication;
-            _cache = cache;
+            _identity = identity.Value;
         }
 
+        /// <summary>
+        /// Registers a new user.
+        /// </summary>
+        /// <param name="dto">The user data.</param>
+        /// <returns>The registered user's JWT token if registration is successful.</returns>
+        /// <response code="200">Returns the registered user's JWT token.</response>
+        /// <response code="400">If the provided user data is invalid.</response>
+        /// <response code="409">If a user with the same email already exists.</response>
         [HttpPost("registration")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Registration([FromBody] UserDTO dto)
         {
             User user = _mapper.Map<User>(dto);
@@ -47,29 +65,53 @@ namespace Api.Controllers
             {
                 await _userApplication.Insert(user);
 
-                _cache.GetOrCreate(user.Id, item =>
-                {
-                    item.Value = user.Username;
-                    return item;
-                });
+                IdentityConfig config = new IdentityConfig();
+                config.Secret = _identity.Secret;
+                config.Expires = _identity.Expires;
+                config.ValidIssuer = _identity.ValidIssuer;
+                config.ValidAudience = _identity.ValidAudience;
 
-                return Ok(await _tokenApplication.GenerateJWT(user));
+                return Ok(await _tokenApplication.GenerateJWT(user, config));
             }
 
             return Conflict("User already exists");
         }
 
+        /// <summary>
+        /// Authenticates a user and generates a JWT token.
+        /// </summary>
+        /// <param name="dto">The user login data.</param>
+        /// <returns>The JWT token if authentication is successful.</returns>
+        /// <response code="200">Returns the JWT token if authentication is successful.</response>
+        /// <response code="400">If the provided email or password is invalid.</response>
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] UserLoginDTO dto)
         {
             User user = await _userApplication.GetUserByEmailPassword(dto.Email, dto.Password);
 
             if (user is null) return BadRequest("User or password invalid");
 
-            return Ok(await _tokenApplication.GenerateJWT(user));
+            IdentityConfig config = new IdentityConfig();
+            config.Secret = _identity.Secret;
+            config.Expires = _identity.Expires;
+            config.ValidIssuer = _identity.ValidIssuer;
+            config.ValidAudience = _identity.ValidAudience;
+
+            return Ok(await _tokenApplication.GenerateJWT(user, config));
         }
 
+        /// <summary>
+        /// Logs out a user by deleting their access tokens.
+        /// </summary>
+        /// <param name="dto">The user logout data.</param>
+        /// <returns>No content if logout is successful.</returns>
+        /// <response code="200">No content if logout is successful.</response>
+        /// <response code="400">If the provided access token is invalid.</response>
         [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Logout([FromBody] UserLogoutDTO dto)
         {
             ClaimsPrincipal user = HttpContext.User;
@@ -85,7 +127,16 @@ namespace Api.Controllers
             return BadRequest("Invalid access token");
         }
 
+        /// <summary>
+        /// Refreshes the access token using a refresh token.
+        /// </summary>
+        /// <param name="dto">The user refresh data.</param>
+        /// <returns>The new access token.</returns>
+        /// <response code="200">The new access token.</response>
+        /// <response code="400">If the provided refresh token is invalid or empty.</response>
         [HttpPost("refresh")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Refresh([FromBody] UserRefreshtDTO dto)
         {
             if (string.IsNullOrEmpty(dto.RefreshToken)) return BadRequest("Invalid refresh token");
@@ -94,7 +145,13 @@ namespace Api.Controllers
 
             if (user is null) return BadRequest("Invalid refresh token");
 
-            return Ok(await _tokenApplication.GenerateJWT(user));
+            IdentityConfig config = new IdentityConfig();
+            config.Secret = _identity.Secret;
+            config.Expires = _identity.Expires;
+            config.ValidIssuer = _identity.ValidIssuer;
+            config.ValidAudience = _identity.ValidAudience;
+
+            return Ok(await _tokenApplication.GenerateJWT(user, config));
         }
     }
 }

@@ -4,6 +4,6 @@ namespace Business.Domain.Interfaces.Services
 {
     public interface ITokenService
     {
-        Task<User> GenerateJWT(User u);
+        Task<User> GenerateJWT(User u, IdentityConfig c);
     }
 }
