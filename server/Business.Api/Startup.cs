@@ -2,6 +2,7 @@ using Api.Hubs;
 using AutoMapper;
 using Business.Api.Filters;
 using Business.Api.Middlewares;
+using Business.Api.Providers;
 using Business.Application.Application;
 using Business.Application.UOW;
 using Business.Database;
@@ -20,12 +21,14 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -113,6 +116,18 @@ namespace AD.Server
                     }
                 });
             }
+
+            string[] languages = { "pt-BR", "en-US" };
+            string defaultLanguage = languages.FirstOrDefault();
+            CultureInfo[] supportedCultures = languages.Select(x => new CultureInfo(x)).ToArray();
+            RequestLocalizationOptions requestLocalizationOptions = new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture(defaultLanguage),
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures
+            };
+            requestLocalizationOptions.RequestCultureProviders.Insert(0, new UrlRequestCultureProvider());
+            app.UseRequestLocalization(requestLocalizationOptions);
 
             app.UseCors("CorsPolicy");
 
@@ -330,7 +345,7 @@ namespace AD.Server
                             partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
                             factory: partition => new FixedWindowRateLimiterOptions
                             {
-                                AutoReplenishment = Convert.ToBoolean(Configuration.GetSection("RateLimiter:0:AutoReplenishment").Value),
+                                AutoReplenishment = Convert.ToBoolean(Configuration.GetSection("RateLimiter:0:AutoRepleni shment").Value),
                                 PermitLimit = Convert.ToInt32(Configuration.GetSection("RateLimiter:0:PermitLimit").Value),
                                 QueueLimit = Convert.ToInt32(Configuration.GetSection("RateLimiter:0:QueueLimit").Value),
                                 QueueProcessingOrder = Enum.TryParse(Configuration.GetSection("RateLimiter:0:QueueProcessingOrder").Value, out QueueProcessingOrder result) ? result : default,

@@ -42,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Internalization\" />
     <Folder Include="Resources\Images\" />
   </ItemGroup>
 
