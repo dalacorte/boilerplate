@@ -10,6 +10,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Localization;
 
 namespace Api.Controllers
 {
@@ -19,10 +20,11 @@ namespace Api.Controllers
     [Authorize]
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/user")]
+    [Route("{language:regex(^[[a-z]]{{2}}(?:-[[A-Z]]{{2}})?$)}/api/v{version:apiVersion}/user")]
     public class UserController : BaseController<User, UnitOfWork, UserViewModel, UserController>
     {
         private readonly IUserApplication<User, UnitOfWork> _userApplication;
+        private readonly IStringLocalizer<UserController> _localizer;
 
         ///<Summary>
         /// Constructor
@@ -31,9 +33,11 @@ namespace Api.Controllers
                               IValidator<User> validator,
                               IUserApplication<User, UnitOfWork> userApplication,
                               IMemoryCache cache,
+                              IStringLocalizer<UserController> localizer,
                               ILogger<UserController> logger) : base(mapper, validator, userApplication, cache, logger)
         {
             _userApplication = userApplication;
+            _localizer = localizer;
         }
 
         /// <summary>

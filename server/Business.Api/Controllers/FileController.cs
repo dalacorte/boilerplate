@@ -9,7 +9,7 @@ namespace Api.Controllers
     ///</Summary>
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/file")]
+    [Route("{language:regex(^[[a-z]]{{2}}(?:-[[A-Z]]{{2}})?$)}/api/v{version:apiVersion}/file")]
     public class FileControler : ControllerBase
     {
         private readonly IFileService _fileService;

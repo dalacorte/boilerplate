@@ -19,7 +19,7 @@ namespace Api.Controllers
     ///</Summary>
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/auth")]
+    [Route("{language:regex(^[[a-z]]{{2}}(?:-[[A-Z]]{{2}})?$)}/api/v{version:apiVersion}/auth")]
     public class AuthController : BaseController<User, UnitOfWork, UserViewModel, AuthController>
     {
         private readonly IUserApplication<User, UnitOfWork> _userApplication;
