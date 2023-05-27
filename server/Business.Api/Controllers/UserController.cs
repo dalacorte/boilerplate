@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Askmethat.Aspnet.JsonLocalizer.Localizer;
+using AutoMapper;
 using Business.Api.Controllers;
 using Business.Application.UOW;
 using Business.Domain.Interfaces.Application;
@@ -8,9 +9,11 @@ using Business.Domain.ViewModels;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Localization;
+using System.Globalization;
 
 namespace Api.Controllers
 {
@@ -24,8 +27,7 @@ namespace Api.Controllers
     public class UserController : BaseController<User, UnitOfWork, UserViewModel, UserController>
     {
         private readonly IUserApplication<User, UnitOfWork> _userApplication;
-        private readonly IStringLocalizer<UserController> _localizer;
-
+        
         ///<Summary>
         /// Constructor
         ///</Summary>
@@ -33,11 +35,10 @@ namespace Api.Controllers
                               IValidator<User> validator,
                               IUserApplication<User, UnitOfWork> userApplication,
                               IMemoryCache cache,
-                              IStringLocalizer<UserController> localizer,
-                              ILogger<UserController> logger) : base(mapper, validator, userApplication, cache, logger)
+                              IStringLocalizer localizer,
+                              ILogger<UserController> logger) : base(mapper, validator, userApplication, cache, localizer, logger)
         {
             _userApplication = userApplication;
-            _localizer = localizer;
         }
 
         /// <summary>
@@ -74,7 +75,7 @@ namespace Api.Controllers
             User user = await _application.GetById(id);
             UserViewModel userViewModel = _mapper.Map<UserViewModel>(user);
 
-            return userViewModel is null ? NotFound() : Ok(userViewModel);
+            return userViewModel is null ? NotFound(_localizer["UserNotFound"].Value) : Ok(userViewModel);
         }
 
         /// <summary>
@@ -108,7 +109,7 @@ namespace Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"ERROR: {HttpContext.Request.Path} -> {ex}");
-                return NotFound();
+                return NotFound(_localizer["UpdateFailed"].Value);
             }
         }
 

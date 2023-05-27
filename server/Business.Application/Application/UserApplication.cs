@@ -47,7 +47,7 @@ namespace Business.Application.Application
         public async Task PostUser(User u)
         {
             _userService.PostUser(u);
-            _unitOfWork.Commit();
+            await _unitOfWork.Commit();
         }
 
         public async Task SaveTokens(User u, string accessToken, string refreshToken)

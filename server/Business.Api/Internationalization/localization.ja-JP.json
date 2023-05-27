@@ -1,0 +1,8 @@
+﻿{
+  "UserNotFound": "ユーザーが見つかりません。",
+  "UpdateFailed": "更新に失敗しました。",
+  "UserAlreadyExists": "ユーザーはすでに存在します。",
+  "UserOrPasswordInvalid": "ユーザー名またはパスワードが無効です。",
+  "InvalidAccessToken": "無効なアクセストークンです。",
+  "InvalidRefreshToken": "無効なリフレッシュトークンです。"
+}

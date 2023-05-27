@@ -1,0 +1,8 @@
+{
+  "UserNotFound": "User not found.",
+  "UpdateFailed": "Update failed.",
+  "UserAlreadyExists": "User already exists.",
+  "UserOrPasswordInvalid": "Invalid username or password.",
+  "InvalidAccessToken": "Invalid access token.",
+  "InvalidRefreshToken": "Invalid refresh token."
+}

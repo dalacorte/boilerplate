@@ -1,4 +1,6 @@
 using Api.Hubs;
+using Askmethat.Aspnet.JsonLocalizer.Extensions;
+using Askmethat.Aspnet.JsonLocalizer.JsonOptions;
 using AutoMapper;
 using Business.Api.Filters;
 using Business.Api.Middlewares;
@@ -25,6 +27,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
@@ -42,7 +45,13 @@ namespace AD.Server
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        IConfiguration Configuration { get; }
+
+        JsonLocalizationOptions _jsonLocalizationOptions;
+        List<CultureInfo> _supportedCultures;
+        RequestCulture _defaultRequestCulture;
+
+        RequestLocalizationOptions _requestLocalization;
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -77,11 +86,47 @@ namespace AD.Server
             services.AddHealthChecks();
 
             ReddisInnitialPayload();
+
+            IConfigurationSection jsonLocalizationOptions = Configuration.GetSection(nameof(JsonLocalizationOptions));
+
+            _jsonLocalizationOptions = jsonLocalizationOptions.Get<JsonLocalizationOptions>();
+            _defaultRequestCulture = new RequestCulture(_jsonLocalizationOptions.DefaultCulture, _jsonLocalizationOptions.DefaultUICulture);
+            _supportedCultures = _jsonLocalizationOptions.SupportedCultureInfos.ToList();
+
+            services.AddJsonLocalization(options =>
+            {
+                options.ResourcesPath = _jsonLocalizationOptions.ResourcesPath;
+                options.CacheDuration = _jsonLocalizationOptions.CacheDuration;
+                options.SupportedCultureInfos = _jsonLocalizationOptions.SupportedCultureInfos;
+                options.FileEncoding = _jsonLocalizationOptions.FileEncoding;
+                options.IsAbsolutePath = _jsonLocalizationOptions.IsAbsolutePath;
+                options.DefaultCulture = _defaultRequestCulture.Culture;
+                options.DefaultUICulture = _defaultRequestCulture.UICulture;
+                options.MissingTranslationLogBehavior = MissingTranslationLogBehavior.CollectToJSON;
+                options.LocalizationMode = LocalizationMode.I18n;
+            });
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = _defaultRequestCulture;
+                options.SupportedCultures = _supportedCultures;
+                options.SupportedUICultures = _supportedCultures;
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
             app.UseMiddleware<RequestRewindMiddleware>(Array.Empty<object>());
+
+            RequestLocalizationOptions options = new RequestLocalizationOptions()
+            {
+                DefaultRequestCulture = _defaultRequestCulture,
+                SupportedCultures = _supportedCultures,
+                SupportedUICultures = _supportedCultures
+            };
+            options.RequestCultureProviders.Insert(0, new UrlRequestCultureProvider());
+
+            app.UseMiddleware<RequestLocalizationMiddleware>(new object[1] { Options.Create(options) });
 
             app.UseHealthChecks("/status");
 
@@ -116,18 +161,6 @@ namespace AD.Server
                     }
                 });
             }
-
-            string[] languages = { "pt-BR", "en-US" };
-            string defaultLanguage = languages.FirstOrDefault();
-            CultureInfo[] supportedCultures = languages.Select(x => new CultureInfo(x)).ToArray();
-            RequestLocalizationOptions requestLocalizationOptions = new RequestLocalizationOptions
-            {
-                DefaultRequestCulture = new RequestCulture(defaultLanguage),
-                SupportedCultures = supportedCultures,
-                SupportedUICultures = supportedCultures
-            };
-            requestLocalizationOptions.RequestCultureProviders.Insert(0, new UrlRequestCultureProvider());
-            app.UseRequestLocalization(requestLocalizationOptions);
 
             app.UseCors("CorsPolicy");
 

@@ -9,6 +9,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
@@ -35,7 +36,8 @@ namespace Api.Controllers
                               ITokenApplication tokenApplication,
                               IOptions<IdentityConfig> identity,
                               IMemoryCache cache,
-                              ILogger<AuthController> logger) : base(mapper, validator, userApplication, cache, logger)
+                              IStringLocalizer localizer,
+                              ILogger<AuthController> logger) : base(mapper, validator, userApplication, cache, localizer, logger)
         {
             _userApplication = userApplication;
             _tokenApplication = tokenApplication;
@@ -74,7 +76,7 @@ namespace Api.Controllers
                 return Ok(await _tokenApplication.GenerateJWT(user, config));
             }
 
-            return Conflict("User already exists");
+            return Conflict(_localizer["UserAlreadyExists"].Value);
         }
 
         /// <summary>
@@ -91,7 +93,7 @@ namespace Api.Controllers
         {
             User user = await _userApplication.GetUserByEmailPassword(dto.Email, dto.Password);
 
-            if (user is null) return BadRequest("User or password invalid");
+            if (user is null) return BadRequest(_localizer["UserOrPasswordInvalid"].Value);
 
             IdentityConfig config = new IdentityConfig();
             config.Secret = _identity.Secret;
@@ -124,7 +126,7 @@ namespace Api.Controllers
                 return Ok();
             }
 
-            return BadRequest("Invalid access token");
+            return BadRequest(_localizer["InvalidAccessToken"].Value);
         }
 
         /// <summary>
@@ -139,11 +141,11 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Refresh([FromBody] UserRefreshtDTO dto)
         {
-            if (string.IsNullOrEmpty(dto.RefreshToken)) return BadRequest("Invalid refresh token");
+            if (string.IsNullOrEmpty(dto.RefreshToken)) return BadRequest(_localizer["InvalidRefreshToken"].Value);
 
             User user = await _userApplication.GetUserByRefreshToken(dto.RefreshToken);
 
-            if (user is null) return BadRequest("Invalid refresh token");
+            if (user is null) return BadRequest(_localizer["InvalidRefreshToken"].Value);
 
             IdentityConfig config = new IdentityConfig();
             config.Secret = _identity.Secret;
