@@ -67,6 +67,8 @@ namespace AD.Server
 
             RegisterFluent(services);
 
+            RegisterAutoMaper(services);
+
             RegisterSwagger(services);
 
             RegisterMemoryCache(services);
@@ -83,39 +85,29 @@ namespace AD.Server
 
             RegisterServiceLocator(services);
 
-            services.AddHealthChecks();
+            RegisterJsonLocalization(services);
+
+            RegisterHealthCheck(services);
 
             ReddisInnitialPayload();
-
-            IConfigurationSection jsonLocalizationOptions = Configuration.GetSection(nameof(JsonLocalizationOptions));
-
-            _jsonLocalizationOptions = jsonLocalizationOptions.Get<JsonLocalizationOptions>();
-            _defaultRequestCulture = new RequestCulture(_jsonLocalizationOptions.DefaultCulture, _jsonLocalizationOptions.DefaultUICulture);
-            _supportedCultures = _jsonLocalizationOptions.SupportedCultureInfos.ToList();
-
-            services.AddJsonLocalization(options =>
-            {
-                options.ResourcesPath = _jsonLocalizationOptions.ResourcesPath;
-                options.CacheDuration = _jsonLocalizationOptions.CacheDuration;
-                options.SupportedCultureInfos = _jsonLocalizationOptions.SupportedCultureInfos;
-                options.FileEncoding = _jsonLocalizationOptions.FileEncoding;
-                options.IsAbsolutePath = _jsonLocalizationOptions.IsAbsolutePath;
-                options.DefaultCulture = _defaultRequestCulture.Culture;
-                options.DefaultUICulture = _defaultRequestCulture.UICulture;
-                options.MissingTranslationLogBehavior = MissingTranslationLogBehavior.CollectToJSON;
-                options.LocalizationMode = LocalizationMode.I18n;
-            });
-
-            services.Configure<RequestLocalizationOptions>(options =>
-            {
-                options.DefaultRequestCulture = _defaultRequestCulture;
-                options.SupportedCultures = _supportedCultures;
-                options.SupportedUICultures = _supportedCultures;
-            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(options =>
+                {
+                    foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
+                    {
+                        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                        options.InjectStylesheet("/swagger-ui/dark-theme.css");
+                    }
+                });
+            }
+
             app.UseMiddleware<RequestRewindMiddleware>(Array.Empty<object>());
 
             RequestLocalizationOptions options = new RequestLocalizationOptions()
@@ -147,20 +139,6 @@ namespace AD.Server
                 FileProvider = new PhysicalFileProvider(Path.Combine(env.WebRootPath, "rate-limit")),
                 RequestPath = new PathString("/rate-limit")
             });
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(options =>
-                {
-                    foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
-                    {
-                        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-                        options.InjectStylesheet("/swagger-ui/dark-theme.css");
-                    }
-                });
-            }
 
             app.UseCors("CorsPolicy");
 
@@ -262,6 +240,32 @@ namespace AD.Server
             services.AddValidatorsFromAssemblyContaining<UserValidator>();
         }
 
+        private static void RegisterAutoMaper(IServiceCollection services)
+        {
+            MapperConfiguration mapperConfiguration = new MapperConfiguration(cfg =>
+            {
+                Action<IMapperConfigurationExpression> config = _ => { };
+
+                config(cfg);
+
+                IEnumerable<Assembly> assembliesToScan = AppDomain.CurrentDomain.GetAssemblies();
+
+                TypeInfo[] allTypes = assembliesToScan.Where(a => a.GetName().Name != nameof(AutoMapper))
+                                                      .SelectMany(a => a.DefinedTypes)
+                                                      .ToArray();
+
+                TypeInfo profileTypeInfo = typeof(Profile).GetTypeInfo();
+                TypeInfo[] profiles = allTypes.Where(t => profileTypeInfo.IsAssignableFrom(t) && !t.IsAbstract).ToArray();
+
+                foreach (Type profile in profiles.Select(t => t.AsType()))
+                {
+                    cfg.AddProfile(profile);
+                }
+            });
+            IMapper mapper = mapperConfiguration.CreateMapper();
+            services.AddSingleton(mapper);
+        }
+
         private static void RegisterSwagger(IServiceCollection services)
         {
             services.AddSwaggerGen(options =>
@@ -284,8 +288,7 @@ namespace AD.Server
 
                 });
 
-                options.IncludeXmlComments(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Business.Api.xml"));
-
+                options.IncludeXmlComments(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Business.Api.xml"));
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -398,6 +401,40 @@ namespace AD.Server
             });
         }
 
+        private void RegisterJsonLocalization(IServiceCollection services)
+        {
+            IConfigurationSection jsonLocalizationOptions = Configuration.GetSection(nameof(JsonLocalizationOptions));
+
+            _jsonLocalizationOptions = jsonLocalizationOptions.Get<JsonLocalizationOptions>();
+            _defaultRequestCulture = new RequestCulture(_jsonLocalizationOptions.DefaultCulture, _jsonLocalizationOptions.DefaultUICulture);
+            _supportedCultures = _jsonLocalizationOptions.SupportedCultureInfos.ToList();
+
+            services.AddJsonLocalization(options =>
+            {
+                options.ResourcesPath = _jsonLocalizationOptions.ResourcesPath;
+                options.CacheDuration = _jsonLocalizationOptions.CacheDuration;
+                options.SupportedCultureInfos = _jsonLocalizationOptions.SupportedCultureInfos;
+                options.FileEncoding = _jsonLocalizationOptions.FileEncoding;
+                options.IsAbsolutePath = _jsonLocalizationOptions.IsAbsolutePath;
+                options.DefaultCulture = _defaultRequestCulture.Culture;
+                options.DefaultUICulture = _defaultRequestCulture.UICulture;
+                options.MissingTranslationLogBehavior = MissingTranslationLogBehavior.CollectToJSON;
+                options.LocalizationMode = LocalizationMode.I18n;
+            });
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = _defaultRequestCulture;
+                options.SupportedCultures = _supportedCultures;
+                options.SupportedUICultures = _supportedCultures;
+            });
+        }
+
+        private static void RegisterHealthCheck(IServiceCollection services)
+        {
+            services.AddHealthChecks();
+        }
+
         private void ReddisInnitialPayload()
         {
             IRedisRepository redis = ServiceLocator.Resolve<IRedisRepository>();
@@ -412,29 +449,6 @@ namespace AD.Server
 
         private void RegisterServices(IServiceCollection services)
         {
-            MapperConfiguration mapperConfiguration = new MapperConfiguration(cfg =>
-            {
-                Action<IMapperConfigurationExpression> config = _ => { };
-
-                config(cfg);
-
-                IEnumerable<Assembly> assembliesToScan = AppDomain.CurrentDomain.GetAssemblies();
-
-                TypeInfo[] allTypes = assembliesToScan.Where(a => a.GetName().Name != nameof(AutoMapper))
-                                                      .SelectMany(a => a.DefinedTypes)
-                                                      .ToArray();
-
-                TypeInfo profileTypeInfo = typeof(Profile).GetTypeInfo();
-                TypeInfo[] profiles = allTypes.Where(t => profileTypeInfo.IsAssignableFrom(t) && !t.IsAbstract).ToArray();
-
-                foreach (Type profile in profiles.Select(t => t.AsType()))
-                {
-                    cfg.AddProfile(profile);
-                }
-            });
-            IMapper mapper = mapperConfiguration.CreateMapper();
-            services.AddSingleton(mapper);
-
             services.AddScoped<IMongoContext, MongoContext>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
