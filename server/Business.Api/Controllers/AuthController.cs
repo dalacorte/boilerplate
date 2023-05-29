@@ -66,12 +66,7 @@ namespace Api.Controllers
             if (!await _userApplication.VerifyIfUserExistsByEmail(dto.Email))
             {
                 await _userApplication.Insert(user);
-
-                IdentityConfig config = new IdentityConfig();
-                config.Secret = _identity.Secret;
-                config.Expires = _identity.Expires;
-                config.ValidIssuer = _identity.ValidIssuer;
-                config.ValidAudience = _identity.ValidAudience;
+                IdentityConfig config = NewIdentityConfig();
 
                 return Ok(await _tokenApplication.GenerateJWT(user, config));
             }
@@ -147,13 +142,19 @@ namespace Api.Controllers
 
             if (user is null) return BadRequest(_localizer["InvalidRefreshToken"].Value);
 
+            IdentityConfig config = NewIdentityConfig();
+
+            return Ok(await _tokenApplication.GenerateJWT(user, config));
+        }
+
+        private IdentityConfig NewIdentityConfig()
+        {
             IdentityConfig config = new IdentityConfig();
             config.Secret = _identity.Secret;
             config.Expires = _identity.Expires;
             config.ValidIssuer = _identity.ValidIssuer;
             config.ValidAudience = _identity.ValidAudience;
-
-            return Ok(await _tokenApplication.GenerateJWT(user, config));
+            return config;
         }
     }
 }
