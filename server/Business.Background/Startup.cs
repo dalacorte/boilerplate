@@ -38,7 +38,9 @@ namespace AD.Server
             {
                 MongoUrlBuilder mongoUrlBuilder = new MongoUrlBuilder(Configuration.GetSection("MongoConnection:ConnectionString").Value)
                 {
-                    DatabaseName = "hangfire"
+                    DatabaseName = "hangfire",
+                    AuthenticationSource = "admin",
+                    AuthenticationMechanism = "SCRAM-SHA-256"
                 };
                 MongoClient mongoClient = new MongoClient(mongoUrlBuilder.ToMongoUrl());
 
@@ -50,7 +52,8 @@ namespace AD.Server
                         BackupStrategy = new CollectionMongoBackupStrategy()
                     },
                     CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection,
-                    InvisibilityTimeout = TimeSpan.FromMinutes(5)
+                    InvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    CheckConnection = true
                 };
 
                 config.UseMongoStorage(mongoClient, mongoUrlBuilder.DatabaseName, storageOptions)
