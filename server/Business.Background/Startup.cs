@@ -82,9 +82,9 @@ namespace AD.Server
                 }
             }
 
-            RecurringJob.AddOrUpdate<RedisConsumerTask>(x => x.RedisConsumer(), Cron.Minutely);
-            RecurringJob.AddOrUpdate<RandomImageTask>(x => x.GetImage(), Cron.Minutely);
-            RecurringJob.AddOrUpdate<CorruptFileTask>(x => x.CorruptFile(), Cron.Daily);
+            RecurringJob.AddOrUpdate<RedisConsumerTask>("redisConsumer", x => x.RedisConsumer(), Cron.Minutely);
+            RecurringJob.AddOrUpdate<RandomImageTask>("randomImage", x => x.GetImage(), Cron.Minutely);
+            RecurringJob.AddOrUpdate<CorruptFileTask>("corruptFile", x => x.CorruptFile(), Cron.Daily);
         }
     }
 }
