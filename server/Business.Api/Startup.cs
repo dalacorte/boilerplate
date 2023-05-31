@@ -55,8 +55,6 @@ namespace AD.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            RegisterPersistence();
-
             RegisterRateLimit(services);
 
             RegisterControllers(services);
@@ -81,15 +79,9 @@ namespace AD.Server
 
             RegisterConnection(services, Configuration);
 
-            RegisterServices(services);
-
-            RegisterServiceLocator(services);
-
             RegisterJsonLocalization(services);
 
             RegisterHealthCheck(services);
-
-            ReddisInnitialPayload();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
@@ -347,11 +339,6 @@ namespace AD.Server
             });
         }
 
-        private static void RegisterPersistence()
-        {
-            MongoPersistence.Configure();
-        }
-
         private void RegisterRateLimit(IServiceCollection services)
         {
             services.AddRateLimiter(options =>
@@ -433,40 +420,6 @@ namespace AD.Server
         private static void RegisterHealthCheck(IServiceCollection services)
         {
             services.AddHealthChecks();
-        }
-
-        private void ReddisInnitialPayload()
-        {
-            IRedisRepository redis = ServiceLocator.Resolve<IRedisRepository>();
-            redis.Set("uniqueidentifier", Configuration.GetSection("Config:uniqueidentifier").Value);
-            redis.Set("defaultdisk", Configuration.GetSection("Config:defaultdisk").Value);
-        }
-
-        private void RegisterServiceLocator(IServiceCollection services)
-        {
-            ServiceLocator.Init(services.BuildServiceProvider());
-        }
-
-        private void RegisterServices(IServiceCollection services)
-        {
-            services.AddScoped<IMongoContext, MongoContext>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-            services.AddScoped<IUserApplication<User, UnitOfWork>, UserApplication<User, UnitOfWork>>();
-            services.AddScoped<IUserService<User>, UserService<User>>();
-            services.AddScoped<IUserRepository<User>, UserRepository<User>>();
-
-            services.AddScoped<IFileApplication, FileApplication>();
-            services.AddScoped<IFileService, FileService>();
-            services.AddScoped<IFileRepository, FileRepository>();
-
-            services.AddScoped<ITokenApplication, TokenApplication>();
-            services.AddScoped<ITokenService, TokenService>();
-
-            services.AddScoped<ILogRequestRepository, LogRequestRepository>();
-
-            services.AddSingleton<IRedisRepository, RedisRepository>();
-            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{Configuration.GetSection("RedisConnection:Host").Value}:{Configuration.GetSection("RedisConnection:Port").Value}"));
         }
     }
 }

@@ -1,10 +1,8 @@
 using Business.Background.Tasks;
 using Business.Domain;
 using Business.Domain.Interfaces.Repositories;
-using Business.Domain.Interfaces.Services;
 using Business.Domain.Model;
 using Business.Repository.Repositories;
-using Business.Service.Services;
 using Hangfire;
 using Hangfire.Logging;
 using Hangfire.Mongo;
@@ -64,7 +62,6 @@ namespace AD.Server
                 options.Queues = new[] { "default" };
             });
 
-            services.AddSingleton<IRedisRepository, RedisRepository>();
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{Configuration.GetSection("RedisConnection:Host").Value}:{Configuration.GetSection("RedisConnection:Port").Value}"));
 
             ServiceLocator.Init(services.BuildServiceProvider());
