@@ -11,7 +11,7 @@ namespace Business.Background.Tasks
             _redisRepository = redisRepository;
         }
 
-        public async void CorruptFile()
+        public async Task CorruptFile()
         {
             string disk = await _redisRepository.Get("defaultdisk");
             string[] nsfw = Directory.GetFiles($@"{disk}:\NSFW");

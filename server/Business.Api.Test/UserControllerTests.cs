@@ -32,13 +32,13 @@ namespace Business.Api.Test
 
             _userFaker = new UserFaker();
 
-            _controller = new UserController(
-                mapper: _mapperMock.Object,
-                validator: _validatorMock.Object,
-                userApplication: _userApplicationMock.Object,
-                cache: _cacheMock.Object,
-                logger: _loggerMock.Object
-            );
+            //_controller = new UserController(
+            //    mapper: _mapperMock.Object,
+            //    validator: _validatorMock.Object,
+            //    userApplication: _userApplicationMock.Object,
+            //    cache: _cacheMock.Object,
+            //    logger: _loggerMock.Object
+            //);
         }
 
         [Fact]

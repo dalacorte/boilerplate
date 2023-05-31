@@ -2,6 +2,7 @@ using Business.Background.Tasks;
 using Business.Domain;
 using Business.Domain.Interfaces.Repositories;
 using Business.Domain.Model;
+using Business.IoC;
 using Business.Repository.Repositories;
 using Hangfire;
 using Hangfire.Logging;
@@ -24,14 +25,10 @@ namespace AD.Server
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<Business.Domain.Model.MongoConnection>(Configuration.GetSection("MongoConnection"));
-
-            services.Configure<RedisConnection>(Configuration.GetSection("RedisConnection"));
-
             services.AddHangfire(config =>
             {
                 MongoUrlBuilder mongoUrlBuilder = new MongoUrlBuilder(Configuration.GetSection("MongoConnection:ConnectionString").Value)
@@ -62,9 +59,7 @@ namespace AD.Server
                 options.Queues = new[] { "default" };
             });
 
-            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{Configuration.GetSection("RedisConnection:Host").Value}:{Configuration.GetSection("RedisConnection:Port").Value}"));
-
-            ServiceLocator.Init(services.BuildServiceProvider());
+            ContainerIoC.Register(services, Configuration);
         }
 
         public void Configure(IApplicationBuilder app)
@@ -79,9 +74,9 @@ namespace AD.Server
                 }
             }
 
-            RecurringJob.AddOrUpdate<RedisConsumerTask>("redisConsumer", x => x.RedisConsumer(), Cron.Minutely);
-            RecurringJob.AddOrUpdate<RandomImageTask>("randomImage", x => x.GetImage(), Cron.Minutely);
-            RecurringJob.AddOrUpdate<CorruptFileTask>("corruptFile", x => x.CorruptFile(), Cron.Daily);
+            RecurringJob.AddOrUpdate<RedisConsumerTask>("Redis Consumer", x => x.RedisConsumer(), Cron.Minutely);
+            //RecurringJob.AddOrUpdate<RandomImageTask>("Random Image Task", x => x.GetImage(), Cron.Minutely);
+            //RecurringJob.AddOrUpdate<CorruptFileTask>("Corrupt File", x => x.CorruptFile(), Cron.Daily);
         }
     }
 }

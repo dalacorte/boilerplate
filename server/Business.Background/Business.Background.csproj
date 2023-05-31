@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Business.Domain\Business.Domain.csproj" />
+    <ProjectReference Include="..\Business.IoC\Business.IoC.csproj" />
     <ProjectReference Include="..\Business.Repository\Business.Repository.csproj" />
     <ProjectReference Include="..\Business.Service\Business.Service.csproj" />
   </ItemGroup>

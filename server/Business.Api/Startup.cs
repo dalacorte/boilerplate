@@ -5,20 +5,9 @@ using AutoMapper;
 using Business.Api.Filters;
 using Business.Api.Middlewares;
 using Business.Api.Providers;
-using Business.Application.Application;
-using Business.Application.UOW;
-using Business.Database;
-using Business.Domain;
-using Business.Domain.Interfaces.Application;
-using Business.Domain.Interfaces.Mongo;
-using Business.Domain.Interfaces.Repositories;
-using Business.Domain.Interfaces.Services;
-using Business.Domain.Interfaces.UOW;
 using Business.Domain.Model;
 using Business.Domain.Validators;
-using Business.Repository.Persistence;
-using Business.Repository.Repositories;
-using Business.Service.Services;
+using Business.IoC;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,7 +19,6 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using StackExchange.Redis;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -69,19 +57,17 @@ namespace AD.Server
 
             RegisterSwagger(services);
 
-            RegisterMemoryCache(services);
-
             RegisterSignalR(services);
 
             RegisterCors(services);
 
             RegisterOptions(services);
 
-            RegisterConnection(services, Configuration);
-
             RegisterJsonLocalization(services);
 
             RegisterHealthCheck(services);
+
+            ContainerIoC.Register(services, Configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
@@ -162,13 +148,6 @@ namespace AD.Server
                 options.MultipartBoundaryLengthLimit = int.MaxValue;
                 options.MemoryBufferThreshold = int.MaxValue;
             });
-        }
-
-        private static void RegisterConnection(IServiceCollection services, IConfiguration configuration)
-        {
-            services.Configure<MongoConnection>(configuration.GetSection("MongoConnection"));
-            services.Configure<RedisConnection>(configuration.GetSection("RedisConnection"));
-            services.Configure<MinioConnection>(configuration.GetSection("MinioConnection"));
         }
 
         private static void RegisterControllers(IServiceCollection services)
@@ -312,11 +291,6 @@ namespace AD.Server
 
                 options.DescribeAllParametersInCamelCase();
             });
-        }
-
-        private static void RegisterMemoryCache(IServiceCollection services)
-        {
-            services.AddMemoryCache();
         }
 
         private static void RegisterCors(IServiceCollection services)

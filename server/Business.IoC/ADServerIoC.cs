@@ -13,11 +13,6 @@ using Business.Service.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Business.IoC
 {
@@ -25,6 +20,8 @@ namespace Business.IoC
     {
         public static void Register(IServiceCollection services, IConfiguration configuration)
         {
+            services.AddMemoryCache();
+
             services.AddScoped<IMongoContext, MongoContext>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -46,6 +43,7 @@ namespace Business.IoC
 
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect($"{configuration.GetSection("RedisConnection:Host").Value}:{configuration.GetSection("RedisConnection:Port").Value}"));
 
+            ServiceLocator.Init(services.BuildServiceProvider());
             IRedisRepository redis = ServiceLocator.Resolve<IRedisRepository>();
             redis.Set("uniqueidentifier", configuration.GetSection("Config:uniqueidentifier").Value);
             redis.Set("defaultdisk", configuration.GetSection("Config:defaultdisk").Value);

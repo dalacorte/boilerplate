@@ -30,9 +30,9 @@ namespace Business.Repository.Repositories
                 await _clientRedis.KeyDeleteAsync(key);
         }
 
-        public List<string> GetAllKeys()
+        public ICollection<string> GetAllKeys()
         {
-            List<string> keys = new List<string>();
+            ICollection<string> keys = new List<string>();
 
             foreach (RedisKey key in _multiplexer.GetServer(_redisConnectionString).Keys(pattern: "*"))
                 keys.Add(key);
@@ -40,52 +40,70 @@ namespace Business.Repository.Repositories
             return keys.Count() > 0 ? keys : null;
         }
 
-        public async Task<List<string>> GetAllKeysWithValue()
+        public async Task<ICollection<string>> GetAllKeysWithValue()
         {
-            List<string> value = new List<string>();
+            ICollection<string> values = new List<string>();
 
             foreach (RedisKey key in _multiplexer.GetServer(_redisConnectionString).Keys(pattern: "*"))
-                value.Add(await Get(key));
+                values.Add(await Get(key));
 
-            return value.Count() > 0 ? value : null;
+            return values.Count() > 0 ? values : null;
         }
 
-        public async Task<List<T>> GetAllKeysWithValue<T>() where T : new()
+        public async Task<ICollection<T>> GetAllKeysWithValue<T>() where T : new()
         {
-            List<T> value = new List<T>();
+            ICollection<T> values = new List<T>();
 
             foreach (RedisKey key in _multiplexer.GetServer(_redisConnectionString).Keys(pattern: "*"))
-                value.Add(await GetJson<T>(key));
+            {
+                T entity = await GetJson<T>(key);
+                if (entity is not null && typeof(T) == entity.GetType())
+                    values.Add(entity);
+            }
 
-            return value.Count() > 0 ? value : null;
+            return values.Count() > 0 ? values : null;
         }
 
         public async Task<string> Get(string key)
         {
-            RedisValue value = await _clientRedis.StringGetAsync(key);
+            RedisValue values = await _clientRedis.StringGetAsync(key);
 
-            return value.HasValue ? value.ToString() : null;
+            return values.HasValue ? values.ToString() : null;
         }
 
         public async Task<T> Get<T>(string key)
         {
-            RedisValue value = await _clientRedis.StringGetAsync(key);
+            RedisValue values = await _clientRedis.StringGetAsync(key);
 
-            return value.HasValue ? (T)Convert.ChangeType(value, typeof(T)) : default(T);
+            return values.HasValue ? (T)Convert.ChangeType(values, typeof(T)) : default(T);
         }
 
         public async Task<T> GetJson<T>(string key) where T : new()
         {
-            RedisValue value = await _clientRedis.StringGetAsync(key);
+            try
+            {
+                RedisValue values = await _clientRedis.StringGetAsync(key);
 
-            return value.HasValue ? JsonConvert.DeserializeObject<T>(value) : default(T);
+                return values.HasValue ? JsonConvert.DeserializeObject<T>(values) : default(T);
+            }
+            catch (JsonReaderException)
+            {
+                return default(T);
+            }
         }
 
         public async Task<IEnumerable<T>> GetIEnumerableJson<T>(string key)
         {
-            RedisValue value = await _clientRedis.StringGetAsync(key);
+            try
+            {
+                RedisValue values = await _clientRedis.StringGetAsync(key);
 
-            return value.HasValue ? JsonConvert.DeserializeObject<IEnumerable<T>>(value) : default(IEnumerable<T>);
+                return values.HasValue ? JsonConvert.DeserializeObject<IEnumerable<T>>(values) : default(IEnumerable<T>);
+            }
+            catch (JsonReaderException)
+            {
+                return default(IEnumerable<T>);
+            }
         }
 
         public async Task Set(string key, string value)

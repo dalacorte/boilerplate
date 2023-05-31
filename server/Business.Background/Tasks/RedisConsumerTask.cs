@@ -14,7 +14,7 @@ namespace Business.Background.Tasks
 
         public async Task RedisConsumer()
         {
-            List<Image> keys = await _redisRepository.GetAllKeysWithValue<Image>();
+            ICollection<Image> keys = await _redisRepository.GetAllKeysWithValue<Image>();
 
             try
             {
