@@ -7,7 +7,7 @@ namespace Business.Api.Providers
     {
         public Task<ProviderCultureResult> DetermineProviderCultureResult(HttpContext httpContext)
         {
-            var culture = httpContext.GetLanguage();
+            string culture = httpContext.GetLanguage();
             return Task.FromResult(new ProviderCultureResult(culture));
         }
     }

@@ -1,23 +1,15 @@
-﻿using Business.Database;
+﻿using Business.Domain.Interfaces.Mongo;
 using Business.Domain.Interfaces.Repositories;
-using Business.Domain.Model;
 using Business.Domain.Models.Others;
-using Microsoft.Extensions.Options;
 
 namespace Business.Repository.Repositories
 {
-    public class LogRequestRepository : ILogRequestRepository
+    public class LogRequestRepository<TEntity> : BaseRepository<LogRequest>, ILogRequestRepository<TEntity>
+        where TEntity : class
     {
-        private readonly MongoContext _context;
-
-        public LogRequestRepository(IOptions<MongoConnection> settings)
+        public LogRequestRepository(IMongoContext context) : base(context)
         {
-            _context = new MongoContext(settings);
-        }
 
-        public async Task Post(LogRequest l)
-        {
-            //=> await _context.Logs.InsertOneAsync(l);
         }
     }
 }

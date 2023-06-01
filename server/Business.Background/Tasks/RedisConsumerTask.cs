@@ -1,15 +1,19 @@
 ﻿using Business.Domain.Interfaces.Repositories;
 using Business.Domain.Model;
+using Microsoft.Extensions.Logging;
 
 namespace Business.Background.Tasks
 {
     public class RedisConsumerTask
     {
         private readonly IRedisRepository _redisRepository;
+        private readonly ILogger _logger;
 
-        public RedisConsumerTask(IRedisRepository redisRepository)
+        public RedisConsumerTask(IRedisRepository redisRepository,
+                                 ILogger<RedisConsumerTask> logger)
         {
             _redisRepository = redisRepository;
+            _logger = logger;
         }
 
         public async Task RedisConsumer()
@@ -38,12 +42,12 @@ namespace Business.Background.Tasks
                             await _redisRepository.Delete(key.image_id.ToString());
                         }
                     });
+
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(keys);
-                Console.WriteLine(ex.ToString());
+                _logger.LogError(ex.Message);
             }
 
             static (string, string) GenerateFolders(string disk)

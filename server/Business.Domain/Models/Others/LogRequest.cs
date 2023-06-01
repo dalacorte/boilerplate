@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Business.Domain.Models.Others
+﻿namespace Business.Domain.Models.Others
 {
     public class LogRequest
     {

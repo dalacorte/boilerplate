@@ -1,9 +1,5 @@
 using Business.Background.Tasks;
-using Business.Domain;
-using Business.Domain.Interfaces.Repositories;
-using Business.Domain.Model;
 using Business.IoC;
-using Business.Repository.Repositories;
 using Hangfire;
 using Hangfire.Logging;
 using Hangfire.Mongo;
@@ -14,7 +10,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using StackExchange.Redis;
 
 namespace AD.Server
 {

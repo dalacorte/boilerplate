@@ -16,9 +16,9 @@ namespace Business.Domain.Model
         public string? ToObj { get; set; }
         public bool? Recursive { get; set; }
         public bool? Versions { get; set; }
-        public IServerSideEncryption ? SSE { get; set; }
-        public IServerSideEncryption ? SSESRC { get; set; }
-        public IServerSideEncryption ? SSEDEST { get; set; }
+        public IServerSideEncryption? SSE { get; set; }
+        public IServerSideEncryption? SSESRC { get; set; }
+        public IServerSideEncryption? SSEDEST { get; set; }
         public List<string>? Objs { get; set; }
         public List<EventType>? Events { get; set; }
     }

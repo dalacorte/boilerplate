@@ -1,4 +1,5 @@
-﻿using Business.Domain.Interfaces.Repositories;
+﻿using Business.Application.UOW;
+using Business.Domain.Interfaces.Application;
 using Business.Domain.Models.Others;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Diagnostics;
@@ -11,14 +12,14 @@ namespace Business.Api.Filters
 {
     public class RequestLoggingFilter : IAsyncActionFilter
     {
-        private readonly ILogRequestRepository _logRequestRepository;
+        private readonly ILogRequestApplication<LogRequest, UnitOfWork> _logRequestApplication;
         private Stopwatch _stopWatch;
 
         private const int DefaultBuffer = 81920;
 
-        public RequestLoggingFilter(ILogRequestRepository logRequestRepository)
+        public RequestLoggingFilter(ILogRequestApplication<LogRequest, UnitOfWork> logRequestApplication)
         {
-            _logRequestRepository = logRequestRepository;
+            _logRequestApplication = logRequestApplication;
             _stopWatch = new Stopwatch();
         }
 
@@ -49,8 +50,8 @@ namespace Business.Api.Filters
                 string requestBody = await GetRequestBody(context, cancellationToken);
                 if (userIp == "::1")
                     userIp = Dns.GetHostEntry(Dns.GetHostName()).AddressList.First(f => f.AddressFamily == AddressFamily.InterNetwork).ToString();
-                LogRequest logRequisicao = new LogRequest(path, controller, httpVerb, queryString, requestBody, userId, userIp, statusCode, executionTime);
-                await _logRequestRepository.Post(logRequisicao);
+                LogRequest logRequest = new LogRequest(path, controller, httpVerb, queryString, requestBody, userId, userIp, statusCode, executionTime);
+                await _logRequestApplication.Insert(logRequest);
             }
 
         }

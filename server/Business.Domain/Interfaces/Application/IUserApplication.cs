@@ -4,6 +4,7 @@ using Business.Domain.Model;
 namespace Business.Domain.Interfaces.Application
 {
     public interface IUserApplication<TEntity, TContext> : IBaseApplication<User, TContext>
+        where TEntity : class
         where TContext : IUnitOfWork
     {
         Task<IEnumerable<User>> GetUsers();

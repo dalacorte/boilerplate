@@ -1,6 +1,6 @@
 ﻿namespace Business.Domain.Interfaces.Services
 {
-    public interface IBaseService<TEntity> 
+    public interface IBaseService<TEntity>
         where TEntity : class
     {
         void Insert(TEntity entity);

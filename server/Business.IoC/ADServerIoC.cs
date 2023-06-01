@@ -8,6 +8,7 @@ using Business.Domain.Interfaces.Repositories;
 using Business.Domain.Interfaces.Services;
 using Business.Domain.Interfaces.UOW;
 using Business.Domain.Model;
+using Business.Domain.Models.Others;
 using Business.Repository.Repositories;
 using Business.Service.Services;
 using Microsoft.Extensions.Configuration;
@@ -37,7 +38,9 @@ namespace Business.IoC
             services.AddScoped<ITokenApplication, TokenApplication>();
             services.AddScoped<ITokenService, TokenService>();
 
-            services.AddScoped<ILogRequestRepository, LogRequestRepository>();
+            services.AddScoped<ILogRequestApplication<LogRequest, UnitOfWork>, LogRequestApplication<LogRequest, UnitOfWork>>();
+            services.AddScoped<ILogRequestService<LogRequest>, LogRequestService<LogRequest>>();
+            services.AddScoped<ILogRequestRepository<LogRequest>, LogRequestRepository<LogRequest>>();
 
             services.AddSingleton<IRedisRepository, RedisRepository>();
 

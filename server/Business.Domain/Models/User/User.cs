@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace Business.Domain.Model
+﻿namespace Business.Domain.Model
 {
     public class User
     {

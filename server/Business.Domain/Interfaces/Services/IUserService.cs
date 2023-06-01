@@ -1,5 +1,4 @@
-﻿using Business.Domain.Interfaces.Repositories;
-using Business.Domain.Model;
+﻿using Business.Domain.Model;
 
 namespace Business.Domain.Interfaces.Services
 {

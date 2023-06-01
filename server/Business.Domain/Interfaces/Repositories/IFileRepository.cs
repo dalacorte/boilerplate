@@ -5,8 +5,8 @@ namespace Business.Domain.Interfaces.Repositories
     public interface IFileRepository
     {
         Task<bool> VerifyIfBucketExists(string bucket);
-        Task UpdateFile(string bucket, string filePath, string obj, IServerSideEncryption ? sse = null);
-        Task CopyFile(string fromBucket, string fromObj, string toBucket, string toObj, IServerSideEncryption ? sseSrc = null, IServerSideEncryption ? sseDest = null);
+        Task UpdateFile(string bucket, string filePath, string obj, IServerSideEncryption? sse = null);
+        Task CopyFile(string fromBucket, string fromObj, string toBucket, string toObj, IServerSideEncryption? sseSrc = null, IServerSideEncryption? sseDest = null);
         Task CreateBucket(string bucket);
         Task DeleteBucket(string bucket);
         void GetFilesInBucketByPrefix(string bucket, string? prefix, bool? recursive = true, bool? versions = false);

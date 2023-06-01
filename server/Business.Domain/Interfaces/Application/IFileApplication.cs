@@ -1,17 +1,12 @@
 ﻿using Minio.DataModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Business.Domain.Interfaces.Application
 {
     public interface IFileApplication
     {
         Task<bool> VerifyIfBucketExists(string bucket);
-        Task UpdateFile(string bucketName, string filePath, string obj, IServerSideEncryption ? sse = null);
-        Task CopyFile(string fromBucket, string fromObj, string toBucket, string toObj, IServerSideEncryption ? sseSrc = null, IServerSideEncryption ? sseDest = null);
+        Task UpdateFile(string bucketName, string filePath, string obj, IServerSideEncryption? sse = null);
+        Task CopyFile(string fromBucket, string fromObj, string toBucket, string toObj, IServerSideEncryption? sseSrc = null, IServerSideEncryption? sseDest = null);
         Task CreateBucket(string bucket);
         Task DeleteBucket(string bucket);
         void GetFilesInBucketByPrefix(string bucket, string? prefix, bool? recursive = true, bool? versions = false);

@@ -11,13 +11,11 @@ namespace Business.Application.Application
         where TContext : IUnitOfWork
     {
         private readonly IUserService<TEntity> _userService;
-        private readonly IUnitOfWork _unitOfWork;
 
         public UserApplication(IUserService<TEntity> userService,
                                IUnitOfWork unitOfWork) : base(userService, unitOfWork)
         {
             _userService = userService;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<User>> GetUsers()
@@ -58,7 +56,7 @@ namespace Business.Application.Application
 
         public async Task<User> PutUser(Guid id, User u)
         {
-            var user = await _userService.PutUser(id, u);
+            User user = await _userService.PutUser(id, u);
             await _unitOfWork.Commit();
 
             return user;
