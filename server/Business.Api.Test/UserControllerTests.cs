@@ -7,6 +7,7 @@ using Business.Domain.ViewModels;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Business.Api.Test
@@ -17,6 +18,7 @@ namespace Business.Api.Test
         private readonly Mock<IValidator<User>> _validatorMock;
         private readonly Mock<IUserApplication<User, UnitOfWork>> _userApplicationMock;
         private readonly Mock<IMemoryCache> _cacheMock;
+        private readonly Mock<IStringLocalizer> _localizerMock;
         private readonly Mock<ILogger<UserController>> _loggerMock;
         private readonly UserController _controller;
 
@@ -28,17 +30,19 @@ namespace Business.Api.Test
             _validatorMock = new Mock<IValidator<User>>();
             _userApplicationMock = new Mock<IUserApplication<User, UnitOfWork>>();
             _cacheMock = new Mock<IMemoryCache>();
+            _localizerMock = new Mock<IStringLocalizer>();
             _loggerMock = new Mock<ILogger<UserController>>();
 
             _userFaker = new UserFaker();
 
-            //_controller = new UserController(
-            //    mapper: _mapperMock.Object,
-            //    validator: _validatorMock.Object,
-            //    userApplication: _userApplicationMock.Object,
-            //    cache: _cacheMock.Object,
-            //    logger: _loggerMock.Object
-            //);
+            _controller = new UserController(
+                mapper: _mapperMock.Object,
+                validator: _validatorMock.Object,
+                userApplication: _userApplicationMock.Object,
+                cache: _cacheMock.Object,
+                localizer: _localizerMock.Object,
+                logger: _loggerMock.Object
+            );
         }
 
         [Fact]
@@ -104,7 +108,7 @@ namespace Business.Api.Test
             UserDTO dto = _userFaker.GenerateDTO();
             CancellationToken cancellation = new CancellationToken();
             User user = new User();
-            user.UpdateId();
+            user.UpdateId(Guid.NewGuid());
             user.UpdateName(dto.Name);
             user.UpdatePassword(dto.Password);
             user.UpdateEmail(dto.Email);
