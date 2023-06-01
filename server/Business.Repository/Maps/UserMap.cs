@@ -10,7 +10,7 @@ namespace Business.Repository.Maps
             BsonClassMap.RegisterClassMap<User>(map =>
             {
                 map.SetIgnoreExtraElements(true);
-                map.MapIdMember(x => x.Id);
+                map.MapIdMember(x => x.Id).SetIsRequired(true);
                 map.MapMember(x => x.Username).SetIsRequired(true);
                 map.MapMember(x => x.Password).SetIsRequired(true);
                 map.MapMember(x => x.Email).SetIsRequired(true);

@@ -2,6 +2,7 @@
 {
     public class LogRequest
     {
+        public Guid Id { get; private set; }
         public string Route { get; private set; }
         public string Controller { get; private set; }
         public string HttpVerb { get; private set; }
@@ -15,6 +16,7 @@
 
         public LogRequest(string route, string controller, string httpVerb, string queryString, string requestBody, string userId, string userIp, int httpResponseStatusCode, long executionTime)
         {
+            Id = Guid.NewGuid();
             Route = route;
             Controller = controller;
             HttpVerb = httpVerb;
