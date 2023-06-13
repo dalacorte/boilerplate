@@ -5,6 +5,7 @@ using Business.Domain.Model;
 using Business.Domain.Model.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace Business.Api.Benchmark
@@ -19,6 +20,7 @@ namespace Business.Api.Benchmark
         private Mock<IValidator<User>> _validatorMock;
         private Mock<IUserApplication<User, UnitOfWork>> _userApplicationMock;
         private Mock<IMemoryCache> _cacheMock;
+        private Mock<IStringLocalizer> _localizerMock;
         private Mock<ILogger<UserController>> _loggerMock;
         private UserController _controller;
 
@@ -33,17 +35,19 @@ namespace Business.Api.Benchmark
             _validatorMock = new Mock<IValidator<User>>();
             _userApplicationMock = new Mock<IUserApplication<User, UnitOfWork>>();
             _cacheMock = new Mock<IMemoryCache>();
+            _localizerMock = new Mock<IStringLocalizer>();
             _loggerMock = new Mock<ILogger<UserController>>();
 
             _userFaker = new UserFaker();
 
-            //_controller = new UserController(
-            //    mapper: _mapperMock.Object,
-            //    validator: _validatorMock.Object,
-            //    userApplication: _userApplicationMock.Object,
-            //    cache: _cacheMock.Object,
-            //    logger: _loggerMock.Object
-            //);
+            _controller = new UserController(
+                mapper: _mapperMock.Object,
+                validator: _validatorMock.Object,
+                userApplication: _userApplicationMock.Object,
+                cache: _cacheMock.Object,
+                localizer: _localizerMock.Object,
+                logger: _loggerMock.Object
+            );
 
             _userId = Guid.NewGuid();
             _userApplicationMock.Setup(a => a.GetById(_userId)).ReturnsAsync(GetMockUser());

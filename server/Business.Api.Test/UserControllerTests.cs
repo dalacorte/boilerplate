@@ -108,7 +108,7 @@ namespace Business.Api.Test
             UserDTO dto = _userFaker.GenerateDTO();
             CancellationToken cancellation = new CancellationToken();
             User user = new User();
-            user.UpdateId(Guid.NewGuid());
+            user.UpdateId();
             user.UpdateName(dto.Name);
             user.UpdatePassword(dto.Password);
             user.UpdateEmail(dto.Email);
